@@ -1,40 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using POOMeireRenzo.Dto;
-using POOMeireRenzo.Interfaces;
 using POOMeireRenzo.Model;
 using POOMeireRenzo.Repository;
 
 namespace POOMeireRenzo.Services
 {
-    public class PresupuestoService : IPresupuestoService
+    public class PresupuestoService
     {
-        private readonly MenuRepository menuRepository;
-        private readonly PresupuestoRepository presupuestoRepository;
         private static readonly Random random = new Random();
 
         public PresupuestoService()
         {
-            this.menuRepository = MenuRepository.Instancia;
-            this.presupuestoRepository = PresupuestoRepository.Instancia;
+            // Constructor vacío explícito
         }
 
-        public (bool EsValido, string MensajeError) ValidarCliente(ClienteDto cliente)
+        // Obtener lista de salones convertida a DTO para la Vista
+        public List<SalonDto> ObtenerSalones()
         {
-            if (string.IsNullOrWhiteSpace(cliente.Nombre) ||
-                string.IsNullOrWhiteSpace(cliente.Documento) ||
-                string.IsNullOrWhiteSpace(cliente.Telefono))
+            List<Salon> salonesDominio = SalonRepository.Instancia.ObtenerTodos();
+            List<SalonDto> salonesDto = new List<SalonDto>();
+
+            foreach (Salon salon in salonesDominio)
             {
-                return (false, "Por favor, complete todos los campos antes de continuar.");
+                SalonDto dto = new SalonDto(salon.Id, salon.Nombre, salon.PrecioBase, salon.PrecioPorHora);
+                salonesDto.Add(dto);
             }
 
-            if (!long.TryParse(cliente.Documento, out _))
+            return salonesDto;
+        }
+
+        // Validación del cliente usando ClienteDto
+        public (bool EsValido, string MensajeError) ValidarCliente(ClienteDto clienteDto)
+        {
+            if (string.IsNullOrWhiteSpace(clienteDto.Nombre) ||
+                string.IsNullOrWhiteSpace(clienteDto.Telefono) ||
+                string.IsNullOrWhiteSpace(clienteDto.Correo))
             {
-                return (false, "El documento debe contener únicamente valores numéricos.");
+                return (false, "Por favor, complete todos los campos obligatorios del cliente (Nombre, Teléfono y Correo).");
             }
 
-            if (!long.TryParse(cliente.Telefono, out _))
+            if (!long.TryParse(clienteDto.Telefono, out long _))
             {
                 return (false, "El teléfono debe contener únicamente valores numéricos.");
             }
@@ -42,152 +48,202 @@ namespace POOMeireRenzo.Services
             return (true, string.Empty);
         }
 
-        public List<MenuDto> ObtenerMenus()
+        // Procesamiento centralizado mediante Request DTO y mapeo a modelos de dominio
+        public PresupuestoDto CalcularYCrearPresupuesto(CrearPresupuestoRequestDto request)
         {
-            return this.menuRepository.ObtenerTodos().ToList();
+            // Mapeo DTO de entrada -> Modelos de Dominio
+            Cliente cliente = new Cliente(request.Cliente.Nombre, request.Cliente.Telefono, request.Cliente.Correo);
+            Salon salon = new Salon(request.SalonSeleccionado.Id, request.SalonSeleccionado.Nombre, request.SalonSeleccionado.PrecioBase, request.SalonSeleccionado.PrecioPorHora);
+
+            MenuNormal menuNormal = new MenuNormal(
+                request.MenuNormal.PlatoPrincipal,
+                request.MenuNormal.PrecioPlato,
+                request.MenuNormal.Bebida,
+                request.MenuNormal.PrecioBebida,
+                request.MenuNormal.Postre,
+                request.MenuNormal.PrecioPostre
+            );
+
+            List<MenuEspecial> listaEspeciales = new List<MenuEspecial>();
+            foreach (MenuEspecialDto espDto in request.ListaEspeciales)
+            {
+                MenuEspecial especial = new MenuEspecial(espDto.Tipo, espDto.Nombre, espDto.Precio, espDto.Cantidad);
+                listaEspeciales.Add(especial);
+            }
+
+            List<ServicioExtra> listaExtras = new List<ServicioExtra>();
+            foreach (ServicioExtraDto extDto in request.ListaExtras)
+            {
+                ServicioExtra extra = new ServicioExtra(extDto.Nombre, extDto.Precio, extDto.Cantidad);
+                listaExtras.Add(extra);
+            }
+
+            int totalInvitados = request.CantidadAdultos + request.CantidadNinos;
+            List<ItemPresupuesto> itemsCalculados = new List<ItemPresupuesto>();
+            decimal totalGeneral = 0m;
+
+            // A. Cálculo del Salón
+            decimal costoSalon = salon.PrecioBase + (request.Horas * salon.PrecioPorHora);
+            totalGeneral += costoSalon;
+
+            ItemPresupuesto itemSalon = new ItemPresupuesto(
+                "Salón",
+                salon.Nombre + " (" + request.Horas.ToString() + " horas)",
+                1,
+                costoSalon,
+                costoSalon
+            );
+            itemsCalculados.Add(itemSalon);
+            ItemPresupuestoRepository.Instancia.Guardar(itemSalon);
+
+            // B. Validación de Menús Especiales
+            int totalEspeciales = 0;
+            foreach (MenuEspecial especial in listaEspeciales)
+            {
+                totalEspeciales += especial.Cantidad;
+            }
+
+            if (totalEspeciales > totalInvitados)
+            {
+                throw new Exception("La cantidad de menús especiales no puede superar el total de invitados (" + totalInvitados.ToString() + ").");
+            }
+
+            // C. Cálculo del Menú Normal
+            int totalMenusNormales = totalInvitados - totalEspeciales;
+            decimal costoUnitarioMenuNormal = menuNormal.CostoTotalPorPersona;
+
+            if (totalMenusNormales > 0)
+            {
+                decimal subtotalNormal = totalMenusNormales * costoUnitarioMenuNormal;
+                totalGeneral += subtotalNormal;
+
+                string descripcionMenu = "Menú Normal (Plato: " + menuNormal.PlatoPrincipal + " | Bebida: " + menuNormal.Bebida + " | Postre: " + menuNormal.Postre + ")";
+
+                ItemPresupuesto itemNormal = new ItemPresupuesto(
+                    "Menú",
+                    descripcionMenu,
+                    totalMenusNormales,
+                    costoUnitarioMenuNormal,
+                    subtotalNormal
+                );
+                itemsCalculados.Add(itemNormal);
+                ItemPresupuestoRepository.Instancia.Guardar(itemNormal);
+            }
+
+            // D. Inclusión de Menús Especiales
+            foreach (MenuEspecial especial in listaEspeciales)
+            {
+                if (especial.Cantidad > 0)
+                {
+                    decimal subtotalEspecial = especial.Subtotal;
+                    totalGeneral += subtotalEspecial;
+
+                    ItemPresupuesto itemEspecial = new ItemPresupuesto(
+                        "Menú Especial",
+                        especial.Tipo + ": " + especial.Nombre,
+                        especial.Cantidad,
+                        especial.Precio,
+                        subtotalEspecial
+                    );
+                    itemsCalculados.Add(itemEspecial);
+                    ItemPresupuestoRepository.Instancia.Guardar(itemEspecial);
+                }
+            }
+
+            // E. Inclusión de Servicios Extra
+            foreach (ServicioExtra extra in listaExtras)
+            {
+                if (extra.Cantidad > 0)
+                {
+                    decimal subtotalExtra = extra.Subtotal;
+                    totalGeneral += subtotalExtra;
+
+                    ItemPresupuesto itemExtra = new ItemPresupuesto(
+                        "Servicio Extra",
+                        extra.Nombre,
+                        extra.Cantidad,
+                        extra.Precio,
+                        subtotalExtra
+                    );
+                    itemsCalculados.Add(itemExtra);
+                    ItemPresupuestoRepository.Instancia.Guardar(itemExtra);
+                }
+            }
+
+            // F. Creación del Presupuesto de dominio
+            int idGenerado = random.Next(1000, 9999);
+            Presupuesto nuevoPresupuesto = new Presupuesto(
+                idGenerado,
+                cliente,
+                salon,
+                request.CantidadAdultos,
+                request.CantidadNinos,
+                request.Horas,
+                itemsCalculados,
+                totalGeneral
+            );
+
+            // G. Persistencia en los repositorios dedicados
+            ClienteRepository.Instancia.Guardar(cliente);
+            MenuNormalRepository.Instancia.Guardar(menuNormal);
+            foreach (MenuEspecial especial in listaEspeciales)
+            {
+                MenuEspecialRepository.Instancia.Guardar(especial);
+            }
+            foreach (ServicioExtra extra in listaExtras)
+            {
+                ServicioExtraRepository.Instancia.Guardar(extra);
+            }
+            PresupuestoRepository.Instancia.Guardar(nuevoPresupuesto);
+
+            // Mapeo inverso: Modelo de Dominio -> PresupuestoDto para la Vista
+            List<ItemPresupuestoDto> itemsDto = new List<ItemPresupuestoDto>();
+            foreach (ItemPresupuesto ip in itemsCalculados)
+            {
+                ItemPresupuestoDto ipDto = new ItemPresupuestoDto(ip.Categoria, ip.Descripcion, ip.Cantidad, ip.PrecioUnitario, ip.Subtotal);
+                itemsDto.Add(ipDto);
+            }
+
+            ClienteDto clienteDtoRespuesta = new ClienteDto(cliente.Nombre, cliente.Telefono, cliente.Correo);
+            SalonDto salonDtoRespuesta = new SalonDto(salon.Id, salon.Nombre, salon.PrecioBase, salon.PrecioPorHora);
+
+            PresupuestoDto presupuestoDtoFinal = new PresupuestoDto(
+                nuevoPresupuesto.Id,
+                clienteDtoRespuesta,
+                salonDtoRespuesta,
+                nuevoPresupuesto.CantidadAdultos,
+                nuevoPresupuesto.CantidadNinos,
+                nuevoPresupuesto.Horas,
+                itemsDto,
+                nuevoPresupuesto.Total
+            );
+
+            return presupuestoDtoFinal;
         }
 
-        public List<LugarDto> ObtenerLugares()
+        // Obtener todos los presupuestos convertidos a DTO
+        public List<PresupuestoDto> ObtenerTodos()
         {
-            return new List<LugarDto>
-            {
-                new LugarDto(1, "Salón Ismael", 2500000m),
-                new LugarDto(2, "Salón Golondrinas", 2000000m),
-                new LugarDto(3, "Salón Romeó", 3500000m),
-                new LugarDto(4, "Salón OASIS", 4000000m)
-            };
-        }
+            List<Presupuesto> listaDominio = PresupuestoRepository.Instancia.ObtenerTodos();
+            List<PresupuestoDto> listaDto = new List<PresupuestoDto>();
 
-        public List<ServicioAdicionalDto> ObtenerServiciosAdicionales()
-        {
-            return new List<ServicioAdicionalDto>
+            foreach (Presupuesto p in listaDominio)
             {
-                new ServicioAdicionalDto(1, "Extra carne", 15000m),
-                new ServicioAdicionalDto(2, "Consumiciones extra", 30000m),
-                new ServicioAdicionalDto(3, "Consumiciones ilimitadas", 70000m),
-                new ServicioAdicionalDto(4, "Elegir canción", 30000m)
-            };
-        }
+                ClienteDto cDto = new ClienteDto(p.Cliente.Nombre, p.Cliente.Telefono, p.Cliente.Correo);
+                SalonDto sDto = new SalonDto(p.Salon.Id, p.Salon.Nombre, p.Salon.PrecioBase, p.Salon.PrecioPorHora);
 
-        public CalculoPresupuestoDto ProcesarCalculo(CalculoPresupuestoDto dto, LugarDto? lugarSeleccionado)
-        {
-            dto.TotalInvitados = dto.CantidadAdultos + dto.CantidadNinos;
-            int sumaEspeciales = dto.Celiacos + dto.Vegetarianos + dto.Diabeticos;
+                List<ItemPresupuestoDto> itemsDto = new List<ItemPresupuestoDto>();
+                foreach (ItemPresupuesto ip in p.Items)
+                {
+                    ItemPresupuestoDto ipDto = new ItemPresupuestoDto(ip.Categoria, ip.Descripcion, ip.Cantidad, ip.PrecioUnitario, ip.Subtotal);
+                    itemsDto.Add(ipDto);
+                }
 
-            if (sumaEspeciales > dto.TotalInvitados)
-            {
-                dto.EsValido = false;
-                dto.MensajeError = $"La cantidad de menús especiales no puede superar el total de invitados ({dto.TotalInvitados}).";
-                dto.MenusEstandarRestantes = 0;
-                dto.TotalEstimado = 0m;
-                return dto;
+                PresupuestoDto pDto = new PresupuestoDto(p.Id, cDto, sDto, p.CantidadAdultos, p.CantidadNinos, p.Horas, itemsDto, p.Total);
+                listaDto.Add(pDto);
             }
 
-            dto.EsValido = true;
-            dto.MenusEstandarRestantes = dto.TotalInvitados - sumaEspeciales;
-            dto.TodosLosItemsCalculados.Clear();
-
-            decimal totalCalculado = 0m;
-
-            if (lugarSeleccionado != null && dto.Horas > 0)
-            {
-                decimal costoSalon = lugarSeleccionado.CostoBase * dto.Horas;
-                totalCalculado += costoSalon;
-
-                dto.TodosLosItemsCalculados.Add(new ItemPresupuestoDto(
-                    "Salón",
-                    $"{lugarSeleccionado.Nombre} ({dto.Horas} hs)",
-                    1,
-                    costoSalon,
-                    costoSalon
-                ));
-            }
-
-            IEnumerable<MenuDto> menus = this.ObtenerMenus();
-
-            decimal cEstandar = ObtenerPrecioMenu(menus, TipoMenu.Estandar, 20000m);
-            decimal cCeliaco = ObtenerPrecioMenu(menus, TipoMenu.Celiaco, 28000m);
-            decimal cVegetariano = ObtenerPrecioMenu(menus, TipoMenu.Vegetariano, 17500m);
-            decimal cDiabetico = ObtenerPrecioMenu(menus, TipoMenu.Diabetico, 19000m);
-
-            if (dto.MenusEstandarRestantes > 0)
-            {
-                decimal sub = dto.MenusEstandarRestantes * cEstandar;
-                totalCalculado += sub;
-                dto.TodosLosItemsCalculados.Add(new ItemPresupuestoDto("Menú", "Menú Estándar", dto.MenusEstandarRestantes, cEstandar, sub));
-            }
-
-            if (dto.Celiacos > 0)
-            {
-                decimal sub = dto.Celiacos * cCeliaco;
-                totalCalculado += sub;
-                dto.TodosLosItemsCalculados.Add(new ItemPresupuestoDto("Menú", "Menú Celíaco", dto.Celiacos, cCeliaco, sub));
-            }
-
-            if (dto.Vegetarianos > 0)
-            {
-                decimal sub = dto.Vegetarianos * cVegetariano;
-                totalCalculado += sub;
-                dto.TodosLosItemsCalculados.Add(new ItemPresupuestoDto("Menú", "Menú Vegetariano", dto.Vegetarianos, cVegetariano, sub));
-            }
-
-            if (dto.Diabeticos > 0)
-            {
-                decimal sub = dto.Diabeticos * cDiabetico;
-                totalCalculado += sub;
-                dto.TodosLosItemsCalculados.Add(new ItemPresupuestoDto("Menú", "Menú Diabético", dto.Diabeticos, cDiabetico, sub));
-            }
-
-            foreach (ItemPresupuestoDto extra in dto.ExtrasAgregados)
-            {
-                totalCalculado += extra.Subtotal;
-                dto.TodosLosItemsCalculados.Add(extra);
-            }
-
-            dto.TotalEstimado = totalCalculado;
-            return dto;
-        }
-
-        public PresupuestoDto GuardarPresupuesto(ClienteDto cliente, CalculoPresupuestoDto dtoCalculado)
-        {
-            PresupuestoDto presupuesto = new PresupuestoDto
-            {
-                Id = random.Next(1000, 9999),
-                Cliente = cliente,
-                Total = dtoCalculado.TotalEstimado,
-                Items = dtoCalculado.TodosLosItemsCalculados,
-                Estado = EstadoPresupuesto.Pendiente
-            };
-
-            this.presupuestoRepository.Guardar(presupuesto);
-            return presupuesto;
-        }
-
-        public PresupuestoDto CrearYGuardarPresupuesto(
-            ClienteDto clienteDto,
-            int lugarId,
-            decimal duracionHoras,
-            int cantidadAdultos,
-            int cantidadNinos,
-            List<ItemPresupuestoDto> itemsDto)
-        {
-            PresupuestoDto presupuesto = new PresupuestoDto
-            {
-                Id = random.Next(1000, 9999),
-                Cliente = clienteDto,
-                Total = itemsDto.Sum(i => i.Subtotal),
-                Items = itemsDto,
-                Estado = EstadoPresupuesto.Pendiente
-            };
-
-            this.presupuestoRepository.Guardar(presupuesto);
-            return presupuesto;
-        }
-
-        private decimal ObtenerPrecioMenu(IEnumerable<MenuDto> menus, TipoMenu tipo, decimal defecto)
-        {
-            MenuDto? m = menus.FirstOrDefault(x => x.TipoMenu == tipo);
-            return m != null ? m.CostoPorPersona : defecto;
+            return listaDto;
         }
     }
 }

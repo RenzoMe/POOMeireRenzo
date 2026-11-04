@@ -2,17 +2,16 @@
 {
     public class ItemPresupuesto
     {
-        private int id;
+        private string categoria = string.Empty;
         private string descripcion = string.Empty;
         private int cantidad;
         private decimal precioUnitario;
-        private Menu? menu;
-        private ServicioAdicional? servicioAdicional;
+        private decimal subtotal;
 
-        public int Id
+        public string Categoria
         {
-            get { return this.id; }
-            set { this.id = value; }
+            get { return this.categoria; }
+            set { this.categoria = value; }
         }
 
         public string Descripcion
@@ -33,41 +32,21 @@
             set { this.precioUnitario = value; }
         }
 
-        public Menu? Menu
+        public decimal Subtotal
         {
-            get { return this.menu; }
-            set { this.menu = value; }
-        }
-
-        public ServicioAdicional? ServicioAdicional
-        {
-            get { return this.servicioAdicional; }
-            set { this.servicioAdicional = value; }
+            get { return this.subtotal; }
+            set { this.subtotal = value; }
         }
 
         public ItemPresupuesto() { }
 
-        public ItemPresupuesto(int id, Menu menu, int cantidad)
+        public ItemPresupuesto(string categoria, string descripcion, int cantidad, decimal precioUnitario, decimal subtotal)
         {
-            this.id = id;
-            this.menu = menu;
+            this.categoria = categoria;
+            this.descripcion = descripcion;
             this.cantidad = cantidad;
-            this.descripcion = menu != null ? menu.Nombre : string.Empty;
-            this.precioUnitario = menu != null ? menu.CostoPorPersona : 0m;
-        }
-
-        public ItemPresupuesto(int id, ServicioAdicional servicioAdicional, int cantidad)
-        {
-            this.id = id;
-            this.servicioAdicional = servicioAdicional;
-            this.cantidad = cantidad;
-            this.descripcion = servicioAdicional != null ? servicioAdicional.Nombre : string.Empty;
-            this.precioUnitario = servicioAdicional != null ? servicioAdicional.MontoFijo : 0m;
-        }
-
-        public decimal CalcularSubtotal()
-        {
-            return this.cantidad * this.precioUnitario;
+            this.precioUnitario = precioUnitario;
+            this.subtotal = subtotal;
         }
     }
 }

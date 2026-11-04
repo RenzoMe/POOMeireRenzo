@@ -1,28 +1,38 @@
 ﻿using System.Collections.Generic;
-using POOMeireRenzo.Dto;
+using POOMeireRenzo.Model;
 
 namespace POOMeireRenzo.Repository
 {
     public class PresupuestoRepository
     {
         private static PresupuestoRepository? instancia;
-        private readonly List<PresupuestoDto> listaPresupuestosGuardados;
+        public static PresupuestoRepository Instancia
+        {
+            get
+            {
+                if (instancia == null)
+                {
+                    instancia = new PresupuestoRepository();
+                }
+                return instancia;
+            }
+        }
+
+        private List<Presupuesto> listaPresupuestos;
 
         private PresupuestoRepository()
         {
-            this.listaPresupuestosGuardados = new List<PresupuestoDto>();
+            this.listaPresupuestos = new List<Presupuesto>();
         }
 
-        public static PresupuestoRepository Instancia => instancia ??= new PresupuestoRepository();
-
-        public void Guardar(PresupuestoDto presupuesto)
+        public void Guardar(Presupuesto presupuesto)
         {
-            this.listaPresupuestosGuardados.Add(presupuesto);
+            this.listaPresupuestos.Add(presupuesto);
         }
 
-        public IEnumerable<PresupuestoDto> ObtenerTodos()
+        public List<Presupuesto> ObtenerTodos()
         {
-            return this.listaPresupuestosGuardados.AsReadOnly();
+            return this.listaPresupuestos;
         }
     }
 }

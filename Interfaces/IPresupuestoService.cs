@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using POOMeireRenzo.Dto;
-using Menu = POOMeireRenzo.Model.Menu;
+﻿using System.Collections.Generic;
+using POOMeireRenzo.Model;
 
 namespace POOMeireRenzo.Interfaces
 {
     public interface IPresupuestoService
     {
-        List<LugarDto> ObtenerLugares();
-        List<MenuDto> ObtenerMenus();
-        List<ServicioAdicionalDto> ObtenerServiciosAdicionales();
+        (bool EsValido, string MensajeError) ValidarCliente(Cliente cliente);
 
-        PresupuestoDto CrearYGuardarPresupuesto(
-            ClienteDto clienteDto,
-            int lugarId,
-            decimal duracionHoras,
+        Presupuesto CalcularYCrearPresupuesto(
+            Cliente cliente,
+            Salon salonSeleccionado,
+            decimal horas,
             int cantidadAdultos,
             int cantidadNinos,
-            List<ItemPresupuestoDto> itemsDto
+            MenuNormal menuNormal,
+            List<MenuEspecial> listaEspeciales,
+            List<ServicioExtra> listaExtras
         );
     }
 }

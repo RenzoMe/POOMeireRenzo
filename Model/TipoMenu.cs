@@ -1,10 +1,8 @@
-﻿
-
-namespace POOMeireRenzo.Model
+﻿namespace POOMeireRenzo.Model
 {
     public enum TipoMenu
     {
-        Estandar,
+        Normal,
         Celiaco,
         Vegetariano,
         Diabetico

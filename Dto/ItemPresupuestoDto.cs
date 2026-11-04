@@ -2,32 +2,36 @@
 {
     public class ItemPresupuestoDto
     {
-        private string tipo = string.Empty;
+        private string categoria = string.Empty;
         private string descripcion = string.Empty;
         private int cantidad;
         private decimal precioUnitario;
         private decimal subtotal;
 
-        public string Tipo
+        public string Categoria
         {
-            get { return this.tipo; }
-            set { this.tipo = value; }
+            get { return this.categoria; }
+            set { this.categoria = value; }
         }
+
         public string Descripcion
         {
             get { return this.descripcion; }
             set { this.descripcion = value; }
         }
+
         public int Cantidad
         {
             get { return this.cantidad; }
             set { this.cantidad = value; }
         }
+
         public decimal PrecioUnitario
         {
             get { return this.precioUnitario; }
             set { this.precioUnitario = value; }
         }
+
         public decimal Subtotal
         {
             get { return this.subtotal; }
@@ -36,9 +40,9 @@
 
         public ItemPresupuestoDto() { }
 
-        public ItemPresupuestoDto(string tipo, string descripcion, int cantidad, decimal precioUnitario, decimal subtotal)
+        public ItemPresupuestoDto(string categoria, string descripcion, int cantidad, decimal precioUnitario, decimal subtotal)
         {
-            this.tipo = tipo;
+            this.categoria = categoria;
             this.descripcion = descripcion;
             this.cantidad = cantidad;
             this.precioUnitario = precioUnitario;

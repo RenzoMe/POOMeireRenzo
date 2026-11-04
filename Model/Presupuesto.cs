@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace POOMeireRenzo.Model
 {
     public class Presupuesto
     {
         private int id;
-        private Cliente cliente;
-        private Lugar lugar;
-        private DateTime fecha;
-        private EstadoPresupuesto estado;
-        private decimal duracionHoras;
+        private Cliente cliente = new Cliente();
+        private Salon salon = new Salon();
         private int cantidadAdultos;
         private int cantidadNinos;
-        private List<ItemPresupuesto> items;
+        private decimal horas;
+        private List<ItemPresupuesto> items = new List<ItemPresupuesto>();
+        private decimal total;
 
         public int Id
         {
@@ -27,28 +25,10 @@ namespace POOMeireRenzo.Model
             set { this.cliente = value; }
         }
 
-        public Lugar Lugar
+        public Salon Salon
         {
-            get { return this.lugar; }
-            set { this.lugar = value; }
-        }
-
-        public DateTime Fecha
-        {
-            get { return this.fecha; }
-            set { this.fecha = value; }
-        }
-
-        public EstadoPresupuesto Estado
-        {
-            get { return this.estado; }
-            set { this.estado = value; }
-        }
-
-        public decimal DuracionHoras
-        {
-            get { return this.duracionHoras; }
-            set { this.duracionHoras = value; }
+            get { return this.salon; }
+            set { this.salon = value; }
         }
 
         public int CantidadAdultos
@@ -63,57 +43,36 @@ namespace POOMeireRenzo.Model
             set { this.cantidadNinos = value; }
         }
 
+        public decimal Horas
+        {
+            get { return this.horas; }
+            set { this.horas = value; }
+        }
+
         public List<ItemPresupuesto> Items
         {
             get { return this.items; }
             set { this.items = value; }
         }
 
-        public Presupuesto()
+        public decimal Total
         {
-            this.cliente = new Cliente();
-            this.lugar = new Lugar();
-            this.items = new List<ItemPresupuesto>();
-            this.fecha = DateTime.Now;
-            this.estado = EstadoPresupuesto.Pendiente;
+            get { return this.total; }
+            set { this.total = value; }
         }
 
-        public Presupuesto(int id, Cliente cliente, Lugar lugar, decimal duracionHoras, int cantidadAdultos, int cantidadNinos)
+        public Presupuesto() { }
+
+        public Presupuesto(int id, Cliente cliente, Salon salon, int adultos, int ninos, decimal horas, List<ItemPresupuesto> items, decimal total)
         {
             this.id = id;
             this.cliente = cliente;
-            this.lugar = lugar;
-            this.duracionHoras = duracionHoras;
-            this.cantidadAdultos = cantidadAdultos;
-            this.cantidadNinos = cantidadNinos;
-            this.fecha = DateTime.Now;
-            this.estado = EstadoPresupuesto.Pendiente;
-            this.items = new List<ItemPresupuesto>();
-        }
-
-        public void AgregarItem(ItemPresupuesto item)
-        {
-            if (item != null)
-            {
-                this.items.Add(item);
-            }
-        }
-
-        public decimal CalcularTotalFinal()
-        {
-            decimal totalFinal = 0m;
-
-            if (this.lugar != null)
-            {
-                totalFinal += (this.lugar.CostoBase * this.duracionHoras);
-            }
-
-            foreach (ItemPresupuesto item in this.items)
-            {
-                totalFinal += item.CalcularSubtotal();
-            }
-
-            return totalFinal;
+            this.salon = salon;
+            this.cantidadAdultos = adultos;
+            this.cantidadNinos = ninos;
+            this.horas = horas;
+            this.items = items;
+            this.total = total;
         }
     }
 }

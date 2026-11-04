@@ -1,45 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace POOMeireRenzo.Model
+﻿namespace POOMeireRenzo.Model
 {
     public class Cliente
     {
-        private int id;
         private string nombre = string.Empty;
-        private string tel = string.Empty;
-        private string documento = string.Empty;
+        private string telefono = string.Empty;
+        private string correo = string.Empty;
 
-        public int Id
-        {
-            get { return this.id; }
-            set { this.id = value; }
-        }
         public string Nombre
         {
             get { return this.nombre; }
             set { this.nombre = value; }
         }
-        public string Tel
+
+        public string Telefono
         {
-            get { return this.tel; }
-            set { this.tel = value; }
+            get { return this.telefono; }
+            set { this.telefono = value; }
         }
-        public string Documento
+
+        public string Correo
         {
-            get { return this.documento; }
-            set { this.documento = value; }
+            get { return this.correo; }
+            set { this.correo = value; }
         }
 
         public Cliente() { }
 
-        public Cliente(int id, string nombre, string tel, string documento)
+        public Cliente(string nombre, string telefono, string correo)
         {
-            this.id = id;
             this.nombre = nombre;
-            this.tel = tel;
-            this.documento = documento;
+            this.telefono = telefono;
+            this.correo = correo;
         }
     }
 }

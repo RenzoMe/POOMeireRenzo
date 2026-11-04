@@ -35,7 +35,7 @@ namespace POOMeireRenzo.Services
 
             foreach (ItemPresupuestoDto item in presupuesto.Items)
             {
-                tabla.AddCell(new PdfPCell(new Phrase(item.Tipo, fuenteTexto)));
+                tabla.AddCell(new PdfPCell(new Phrase(item.Categoria, fuenteTexto)));
                 tabla.AddCell(new PdfPCell(new Phrase(item.Descripcion, fuenteTexto)));
                 tabla.AddCell(new PdfPCell(new Phrase(item.Cantidad.ToString(), fuenteTexto)));
                 tabla.AddCell(new PdfPCell(new Phrase("$ " + item.Subtotal.ToString("N2"), fuenteTexto)));

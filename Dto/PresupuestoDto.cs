@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using POOMeireRenzo.Model;
 
 namespace POOMeireRenzo.Dto
 {
@@ -7,9 +6,12 @@ namespace POOMeireRenzo.Dto
     {
         private int id;
         private ClienteDto cliente = new ClienteDto();
-        private decimal total;
+        private SalonDto salon = new SalonDto();
+        private int cantidadAdultos;
+        private int cantidadNinos;
+        private decimal horas;
         private List<ItemPresupuestoDto> items = new List<ItemPresupuestoDto>();
-        private EstadoPresupuesto estado = EstadoPresupuesto.Pendiente;
+        private decimal total;
 
         public int Id
         {
@@ -23,10 +25,28 @@ namespace POOMeireRenzo.Dto
             set { this.cliente = value; }
         }
 
-        public decimal Total
+        public SalonDto Salon
         {
-            get { return this.total; }
-            set { this.total = value; }
+            get { return this.salon; }
+            set { this.salon = value; }
+        }
+
+        public int CantidadAdultos
+        {
+            get { return this.cantidadAdultos; }
+            set { this.cantidadAdultos = value; }
+        }
+
+        public int CantidadNinos
+        {
+            get { return this.cantidadNinos; }
+            set { this.cantidadNinos = value; }
+        }
+
+        public decimal Horas
+        {
+            get { return this.horas; }
+            set { this.horas = value; }
         }
 
         public List<ItemPresupuestoDto> Items
@@ -35,21 +55,24 @@ namespace POOMeireRenzo.Dto
             set { this.items = value; }
         }
 
-        public EstadoPresupuesto Estado
+        public decimal Total
         {
-            get { return this.estado; }
-            set { this.estado = value; }
+            get { return this.total; }
+            set { this.total = value; }
         }
 
         public PresupuestoDto() { }
 
-        public PresupuestoDto(int id, ClienteDto cliente, decimal total, List<ItemPresupuestoDto> items, EstadoPresupuesto estado = EstadoPresupuesto.Pendiente)
+        public PresupuestoDto(int id, ClienteDto cliente, SalonDto salon, int adultos, int ninos, decimal horas, List<ItemPresupuestoDto> items, decimal total)
         {
             this.id = id;
             this.cliente = cliente;
-            this.total = total;
+            this.salon = salon;
+            this.cantidadAdultos = adultos;
+            this.cantidadNinos = ninos;
+            this.horas = horas;
             this.items = items;
-            this.estado = estado;
+            this.total = total;
         }
     }
 }

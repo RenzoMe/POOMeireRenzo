@@ -15,36 +15,48 @@ namespace POOMeireRenzo.View
             this.presupuestoService = new PresupuestoService();
         }
 
-        private void ButtonCliente(object sender, EventArgs e)
+        private void FormCliente_Load(object sender, EventArgs e)
+        {
+            // Método requerido por el diseñador visual
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+            // Método requerido por el diseñador visual
+        }
+
+        private void Nombre_TextChanged(object sender, EventArgs e)
+        {
+            // Método requerido por el diseñador visual
+        }
+
+        private void ButtonCliente_Click(object sender, EventArgs e)
+        {
+            // Método requerido por el diseñador visual
+        }
+
+        private void btnContinuar_Click(object sender, EventArgs e)
         {
             ClienteDto clienteDto = new ClienteDto(
-                Nombre.Text.Trim(),
-                Documento.Text.Trim(),
-                Telefono.Text.Trim()
+                txtNombre.Text.Trim(),
+                txtTelefono.Text.Trim(),
+                txtCorreo.Text.Trim()
             );
 
-   
-            var resultado = this.presupuestoService.ValidarCliente(clienteDto);
+            (bool EsValido, string MensajeError) resultadoValidacion = this.presupuestoService.ValidarCliente(clienteDto);
 
-            if (!resultado.EsValido)
+            if (!resultadoValidacion.EsValido)
             {
-                MessageBox.Show(resultado.MensajeError, "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(resultadoValidacion.MensajeError, "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             this.Hide();
 
-     
-            using (FormPresupuesto formPresupuesto = new FormPresupuesto(clienteDto))
-            {
-                formPresupuesto.ShowDialog();
-            }
+            FormPresupuesto formPresupuesto = new FormPresupuesto(clienteDto);
+            formPresupuesto.ShowDialog();
 
             this.Close();
         }
-
-        private void FormCliente_Load(object sender, EventArgs e) { }
-        private void label1_Click(object sender, EventArgs e) { }
-        private void Nombre_TextChanged(object sender, EventArgs e) { }
     }
 }

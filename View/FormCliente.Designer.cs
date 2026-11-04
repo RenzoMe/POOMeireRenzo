@@ -2,10 +2,8 @@
 {
     partial class FormCliente
     {
-
         private System.ComponentModel.IContainer components = null;
 
-    
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -17,73 +15,88 @@
 
         #region Windows Form Designer generated code
 
-
         private void InitializeComponent()
         {
-            label1 = new Label();
-            Nombre = new TextBox();
-            label2 = new Label();
-            Documento = new TextBox();
-            label3 = new Label();
-            Telefono = new TextBox();
-            buttonCliente = new Button();
+            label1 = new System.Windows.Forms.Label();
+            txtNombre = new System.Windows.Forms.TextBox();
+            label2 = new System.Windows.Forms.Label();
+            txtCorreo = new System.Windows.Forms.TextBox();
+            label3 = new System.Windows.Forms.Label();
+            txtTelefono = new System.Windows.Forms.TextBox();
+            btnContinuar = new System.Windows.Forms.Button();
             SuspendLayout();
-       
+            // 
+            // label1
+            // 
             label1.AutoSize = true;
-            label1.Location = new Point(295, 68);
+            label1.Location = new System.Drawing.Point(295, 68);
             label1.Name = "label1";
-            label1.Size = new Size(108, 15);
+            label1.Size = new System.Drawing.Size(108, 15);
             label1.TabIndex = 0;
             label1.Text = "Nombre completo:";
             label1.Click += label1_Click;
-          
-            Nombre.Location = new Point(295, 104);
-            Nombre.Name = "Nombre";
-            Nombre.Size = new Size(100, 23);
-            Nombre.TabIndex = 1;
-            Nombre.TextChanged += Nombre_TextChanged;
-       
+            // 
+            // txtNombre
+            // 
+            txtNombre.Location = new System.Drawing.Point(295, 99);
+            txtNombre.Name = "txtNombre";
+            txtNombre.Size = new System.Drawing.Size(100, 23);
+            txtNombre.TabIndex = 1;
+            txtNombre.TextChanged += Nombre_TextChanged;
+            // 
+            // label2
+            // 
             label2.AutoSize = true;
-            label2.Location = new Point(295, 145);
+            label2.Location = new System.Drawing.Point(295, 145);
             label2.Name = "label2";
-            label2.Size = new Size(73, 15);
+            label2.Size = new System.Drawing.Size(46, 15);
             label2.TabIndex = 2;
-            label2.Text = "Documento:";
-          
-            Documento.Location = new Point(295, 178);
-            Documento.Name = "Documento";
-            Documento.Size = new Size(100, 23);
-            Documento.TabIndex = 3;
-           
+            label2.Text = "Correo:";
+            // 
+            // txtCorreo
+            // 
+            txtCorreo.Location = new System.Drawing.Point(295, 178);
+            txtCorreo.Name = "txtCorreo";
+            txtCorreo.Size = new System.Drawing.Size(100, 23);
+            txtCorreo.TabIndex = 3;
+            // 
+            // label3
+            // 
             label3.AutoSize = true;
-            label3.Location = new Point(295, 221);
+            label3.Location = new System.Drawing.Point(295, 221);
             label3.Name = "label3";
-            label3.Size = new Size(56, 15);
+            label3.Size = new System.Drawing.Size(56, 15);
             label3.TabIndex = 4;
             label3.Text = "Telefono:";
-         
-            Telefono.Location = new Point(295, 252);
-            Telefono.Name = "Telefono";
-            Telefono.Size = new Size(100, 23);
-            Telefono.TabIndex = 5;
-           
-            buttonCliente.Location = new Point(308, 295);
-            buttonCliente.Name = "buttonCliente";
-            buttonCliente.Size = new Size(75, 23);
-            buttonCliente.TabIndex = 6;
-            buttonCliente.Text = "Continuar";
-            buttonCliente.UseVisualStyleBackColor = true;
-            buttonCliente.Click += ButtonCliente;
-            
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Controls.Add(buttonCliente);
-            Controls.Add(Telefono);
+            // 
+            // txtTelefono
+            // 
+            txtTelefono.Location = new System.Drawing.Point(295, 252);
+            txtTelefono.Name = "txtTelefono";
+            txtTelefono.Size = new System.Drawing.Size(100, 23);
+            txtTelefono.TabIndex = 5;
+            // 
+            // btnContinuar
+            // 
+            btnContinuar.Location = new System.Drawing.Point(308, 295);
+            btnContinuar.Name = "btnContinuar";
+            btnContinuar.Size = new System.Drawing.Size(75, 23);
+            btnContinuar.TabIndex = 6;
+            btnContinuar.Text = "Continuar";
+            btnContinuar.UseVisualStyleBackColor = true;
+            btnContinuar.Click += btnContinuar_Click;
+            // 
+            // FormCliente
+            // 
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(800, 450);
+            Controls.Add(btnContinuar);
+            Controls.Add(txtTelefono);
             Controls.Add(label3);
-            Controls.Add(Documento);
+            Controls.Add(txtCorreo);
             Controls.Add(label2);
-            Controls.Add(Nombre);
+            Controls.Add(txtNombre);
             Controls.Add(label1);
             Name = "FormCliente";
             Text = "FormCliente";
@@ -94,12 +107,12 @@
 
         #endregion
 
-        private Label label1;
-        private TextBox Nombre;
-        private Label label2;
-        private TextBox Documento;
-        private Label label3;
-        private TextBox Telefono;
-        private Button buttonCliente;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtNombre;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtCorreo;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox txtTelefono;
+        private System.Windows.Forms.Button btnContinuar;
     }
 }

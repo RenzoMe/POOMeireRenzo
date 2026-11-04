@@ -1,19 +1,11 @@
-﻿using POOMeireRenzo.Model;
-using Menu = POOMeireRenzo.Model.Menu;
+﻿using System.Collections.Generic;
+using POOMeireRenzo.Model;
 
 namespace POOMeireRenzo.Interfaces
 {
     public interface IPresupuestoRepository
     {
-        void GuardarCliente(Cliente cliente);
-        Cliente ObtenerClientePorDocumento(string documento);
-
-        void GuardarPresupuesto(Presupuesto presupuesto);
-        List<Presupuesto> ObtenerPresupuestos();
-        Presupuesto ObtenerPresupuestoPorId(int id);
-
-        List<Lugar> ObtenerLugares();
-        List<Menu> ObtenerMenus();
-        List<ServicioAdicional> ObtenerServiciosAdicionales();
+        void Guardar(Presupuesto presupuesto);
+        List<Presupuesto> ObtenerTodos();
     }
 }
